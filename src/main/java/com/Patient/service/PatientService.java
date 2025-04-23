@@ -1,9 +1,11 @@
 package com.Patient.service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.Patient.DTOclasses.DoctorDto;
 import com.Patient.DTOclasses.MedicalRecordsDto;
@@ -46,7 +48,10 @@ public class PatientService {
 
     public Doctor DoctorInclusion(DoctorDto doctor){
         Doctor d = new Doctor();
-        d.setPatientName(doctor.getName());
+        d.setName(doctor.getName());
+        d.setProfession(doctor.getProfession());
+        d.setPhoneNumber(doctor.getPhoneNumber());
+    
         return Doctorrepo.save(d);
     }
 
@@ -68,5 +73,21 @@ public class PatientService {
         dtom.setPrescription(medical.getPrescription());
         dtom.setSymptoms(medical.getSymptoms());
         return dtom;
+    }
+
+    @Transactional
+    public List<Patient> totalPatient(Long DoctorId){
+        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()->new RuntimeException("NO DOC"));
+        return doc.getList();
+    }
+
+    public PatientDto singlePatient(long DoctorId,long PatientId){
+        Patient p =  Patientrepo.GetPatientDetails(DoctorId,PatientId).orElseThrow(()->new RuntimeException("NO PATIENT"));
+        PatientDto pdto = new PatientDto();
+        pdto.setName(p.getName());
+        pdto.setEmail(p.getEmail());
+        pdto.setPhoneNumber(p.getPhoneNumber());
+
+        return pdto;
     }
 }

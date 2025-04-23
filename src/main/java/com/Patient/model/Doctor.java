@@ -1,6 +1,8 @@
 package com.Patient.model;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,8 +16,11 @@ public class Doctor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String profession;
+    private String phoneNumber;
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Patient> patients;
 
     public Long getId(){
@@ -24,17 +29,35 @@ public class Doctor {
     public String getName(){
         return name;
     }
+
+    public String getProfession(){
+        return profession;
+    }
+
+    public String getPhoneNumber(){
+        return phoneNumber;
+    }
+
+
     public List<Patient> getList(){
         return patients;
     }
 
-    public void setPatientId(Long id){
+    public void setId(Long id){
         this.id = id;
     }
-    public void setPatientName(String name){
+    public void setName(String name){
         this.name = name;
     }
-    public void setPatientList(List<Patient> patients){
+    public void setList(List<Patient> patients){
         this.patients = patients;
+    }
+
+    public void setProfession(String profession){
+        this.profession = profession;
+    }
+
+    public void setPhoneNumber(String phoneNumber){
+        this.phoneNumber = phoneNumber;
     }
 }

@@ -3,6 +3,7 @@ package com.Patient.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -29,6 +30,7 @@ public class Patient {
     private Doctor doctor;
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<MedicalRecords> medicalRecords;
 
     public Long getId() {
@@ -51,6 +53,10 @@ public class Patient {
         return doctor;
     }
 
+    public List<MedicalRecords> getMedicalRecords(){
+        return medicalRecords;
+    }
+
     
     public void setId(Long id) {
         this.id = id;
@@ -70,5 +76,9 @@ public class Patient {
 
     public void setDoctor(Doctor doctor) {
         this.doctor = doctor;
+    }
+
+    public void setMedicalRecords(List<MedicalRecords> Medicalrec){
+        this.medicalRecords = Medicalrec;
     }
 }

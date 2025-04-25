@@ -2,6 +2,8 @@ package com.Patient.model;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,8 +24,13 @@ public class MedicalRecords {
 
     @ManyToOne
     @JoinColumn(name = "Patient_Id")
+    @JsonBackReference
     private Patient patient;
-    
+
+
+    public long getId(){
+        return id;
+    }
 
     public String getSymptoms(){
         return symptoms;
@@ -44,6 +51,7 @@ public class MedicalRecords {
     public Patient getPatient(){
         return patient;
     }
+
 
 
     public void setSymptoms(String symptoms){

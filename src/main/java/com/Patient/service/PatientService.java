@@ -1,9 +1,15 @@
 package com.Patient.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,5 +95,77 @@ public class PatientService {
         pdto.setPhoneNumber(p.getPhoneNumber());
 
         return pdto;
+    }
+
+    public List<MedicalRecords> totalMedrecord(long doctorId, long patientId){
+        List<MedicalRecords> med = MedicalRecordsrepo.GetMedicalRecords(doctorId,patientId,LocalDate.now());
+        return med;
+    }
+
+    public List<DoctorDto> totalDoctor(){
+        List<Doctor> docs =  Doctorrepo.findAll();
+
+        List<DoctorDto> dto = new ArrayList<>();
+
+        for(Doctor i : docs){
+            DoctorDto d = new DoctorDto();
+            d.setName(i.getName());
+            d.setPhoneNumber(i.getPhoneNumber());
+            d.setProfession(i.getProfession());
+
+            dto.add(d);
+        }
+
+        return dto;
+    }
+
+    public ResponseEntity<String> updateDoctor(long DoctorId,DoctorDto doctorDto){
+        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()-> new RuntimeException("Could not find ID "+DoctorId));
+
+        doc.setName(doctorDto.getName());
+        doc.setProfession(doctorDto.getProfession());
+        doc.setPhoneNumber(doctorDto.getPhoneNumber());
+
+        Doctorrepo.save(doc);
+        return ResponseEntity.ok("The Doctor details have been Successfully updated!");
+    }
+
+    public ResponseEntity<String> updatePatient(long PatientId,PatientDto patientDto){
+        Patient patient = Patientrepo.GetPatientDetails(patientDto.getDoctorId(),PatientId).orElseThrow(()->new RuntimeException("NO PATIENT"));
+
+        patient.setEmail(patientDto.getEmail());
+        patient.setPhoneNumber(patientDto.getPhoneNumber());
+
+        Patientrepo.save(patient);
+
+        return ResponseEntity.ok("The Patient of ID "+PatientId+" has been successfully updated!");
+
+    }
+
+    public ResponseEntity<String> DeletePatient(long DoctorId,long PatientId){
+        Patient patient = Patientrepo.GetPatientDetails(DoctorId,PatientId).orElseThrow(()->new RuntimeException("NO PATIENT"));
+        List<MedicalRecords> medrec = patient.getMedicalRecords();
+
+        for(MedicalRecords i : medrec){
+            MedicalRecordsrepo.deleteById(i.getId());
+        }
+
+        Patientrepo.deleteById(PatientId);
+
+        return ResponseEntity.ok("The Patient of ID "+PatientId+" Has been deleted along with all their records!");
+    }
+
+    public ResponseEntity<String> DeleteDoctor(long DoctorId, long NewDoctorId){
+        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()-> new RuntimeException("Could not find ID "+DoctorId));
+        List<Patient> p = doc.getList();
+        Doctor D = Doctorrepo.findById(NewDoctorId).orElseThrow(()-> new RuntimeException("Could not find ID "+DoctorId));
+        for(Patient i : p){
+            i.setDoctor(D);
+            Patientrepo.save(i);
+        }
+
+        Doctorrepo.delete(doc);
+
+        return ResponseEntity.ok("The Doctor of ID "+DoctorId+" Has been deleted and Doctor with ID "+NewDoctorId+" has been replaced successfully!");
     }
 }

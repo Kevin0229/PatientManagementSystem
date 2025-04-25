@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,10 +18,7 @@ import com.Patient.model.Doctor;
 import com.Patient.model.MedicalRecords;
 import com.Patient.model.Patient;
 import com.Patient.service.PatientService;
-
-
-
-
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -39,41 +35,45 @@ public class ControllerPatient {
     
 
     @PostMapping("/NewPatient")
-    public PatientDto addPatientToDoctor(@RequestBody PatientDto patients){
-        return patientServices.newPatientAdd(patients);
+    public ResponseEntity<PatientDto> addPatientToDoctor(@RequestBody @Valid PatientDto patients){
+        return ResponseEntity.ok(patientServices.newPatientAdd(patients));
         
     }
 
     @PostMapping("/Newdoctor")
-    public Doctor addDoctorDetails(@RequestBody DoctorDto doctor){
-        return patientServices.DoctorInclusion(doctor);
+    public  ResponseEntity<Doctor> addDoctorDetails(@RequestBody @Valid DoctorDto doctor){
+        return ResponseEntity.ok(patientServices.DoctorInclusion(doctor));
     }
 
     @PostMapping("/NewMedicalRecord")
-    public MedicalRecordsDto addMedicalRecord(@RequestBody MedicalRecordsDto medrec){
-        return patientServices.newRecord(medrec);
+    public  ResponseEntity<MedicalRecordsDto> addMedicalRecord(@RequestBody @Valid MedicalRecordsDto medrec){
+        return ResponseEntity.ok(patientServices.newRecord(medrec));
     }
 
 
     @GetMapping("/{DoctorId}/Patient")
-    public List<Patient> recieveAllPatient(@PathVariable long DoctorId){
-        return patientServices.totalPatient(DoctorId);
+    public ResponseEntity<List<Patient>> recieveAllPatient(@PathVariable long DoctorId){
+        List<Patient> patients = patientServices.totalPatient(DoctorId);
+        return ResponseEntity.ok(patients);
     }
 
     @GetMapping("/{DoctorId}/Patient/{PatientId}")
-    public PatientDto recieveAPatient(@PathVariable long DoctorId,@PathVariable long PatientId){
-        return patientServices.singlePatient(DoctorId,PatientId);
+    public ResponseEntity<PatientDto> recieveAPatient(@PathVariable long DoctorId,@PathVariable long PatientId){
+        PatientDto patient =patientServices.singlePatient(DoctorId,PatientId);
+        return ResponseEntity.ok(patient);
     }
 
     
     @GetMapping("/{DoctorId}/Patient/{PatientId}/MedicalRecords")
-    public List<MedicalRecords> recieveAllMedicalRecords(@PathVariable long DoctorId){
-        return patientServices.totalMedrecord(DoctorId, DoctorId);
+    public ResponseEntity<List<MedicalRecords>> recieveAllMedicalRecords(@PathVariable long DoctorId){
+        List<MedicalRecords> record = patientServices.totalMedrecord(DoctorId, DoctorId);
+        return ResponseEntity.ok(record);
     }
    
     @GetMapping("/All")
-    public List<DoctorDto> allDoctor(){
-        return patientServices.totalDoctor();
+    public ResponseEntity<List<DoctorDto>> allDoctor(){
+        List<DoctorDto> doctors = patientServices.totalDoctor();
+        return ResponseEntity.ok(doctors);
     }
 
     @PutMapping("/{DoctorId}")

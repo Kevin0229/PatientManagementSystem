@@ -2,14 +2,18 @@ package com.Patient.DTOclasses;
 
 import java.time.LocalDate;
 
-import com.Patient.model.Patient;
+import jakarta.validation.constraints.NotNull;
 
 public class MedicalRecordsDto {
-
+    @NotNull(message = "Symptoms cannot be null")
     private String symptoms;
+    @NotNull(message = "Diagnosis cannot be null")  
     private String diagnosis;
+    @NotNull(message = "Prescription cannot be null")
     private String prescription;
+    @NotNull(message = "Date cannot be null")
     private LocalDate date;
+    @NotNull(message = "Patient ID cannot be null")
     private long patientId;
 
     public String getSymptoms() {
@@ -51,5 +55,5 @@ public class MedicalRecordsDto {
     public void setPatientId(long patient){
         this.patientId = patient;
     }
-    
+
 }

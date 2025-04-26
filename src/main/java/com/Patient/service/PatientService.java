@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.Patient.DTOclasses.DoctorDto;
 import com.Patient.DTOclasses.MedicalRecordsDto;
 import com.Patient.DTOclasses.PatientDto;
+import com.Patient.Exception.DoctorNotFoundException;
+import com.Patient.Exception.MedicalRecordNotFoundException;
+import com.Patient.Exception.PatientNotFoundException;
 import com.Patient.model.Doctor;
 import com.Patient.model.MedicalRecords;
 import com.Patient.model.Patient;
@@ -41,7 +44,7 @@ public class PatientService {
         newPatient.setEmail(patient.getEmail());
         newPatient.setPhoneNumber(patient.getPhoneNumber());
 
-        Doctor doctor= Doctorrepo.findById(patient.getDoctorId()).orElseThrow(() -> new RuntimeException("Doctor not found"));
+        Doctor doctor= Doctorrepo.findById(patient.getDoctorId()).orElseThrow(() -> new DoctorNotFoundException("Doctor not found!"));
         newPatient.setDoctor(doctor);
         Patient p = Patientrepo.save(newPatient);
         PatientDto pdto = new PatientDto();
@@ -68,7 +71,7 @@ public class PatientService {
         med.setPrescription(medrec.getPrescription());
         med.setDate(LocalDate.now());
         
-        Patient p = Patientrepo.findById(medrec.getPatientId()).orElseThrow(()-> new RuntimeException("Patient not found"));
+        Patient p = Patientrepo.findById(medrec.getPatientId()).orElseThrow(()-> new PatientNotFoundException("Patient not found!"));
         med.setPatient(p);
         MedicalRecords medical = MedicalRecordsrepo.save(med);
 
@@ -83,12 +86,12 @@ public class PatientService {
 
     @Transactional
     public List<Patient> totalPatient(Long DoctorId){
-        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()->new RuntimeException("NO DOC"));
+        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()->new DoctorNotFoundException("Doctor Not found!"));
         return doc.getList();
     }
 
     public PatientDto singlePatient(long DoctorId,long PatientId){
-        Patient p =  Patientrepo.GetPatientDetails(DoctorId,PatientId).orElseThrow(()->new RuntimeException("NO PATIENT"));
+        Patient p =  Patientrepo.GetPatientDetails(DoctorId,PatientId).orElseThrow(()->new PatientNotFoundException("NO PATIENT"));
         PatientDto pdto = new PatientDto();
         pdto.setName(p.getName());
         pdto.setEmail(p.getEmail());
@@ -99,6 +102,11 @@ public class PatientService {
 
     public List<MedicalRecords> totalMedrecord(long doctorId, long patientId){
         List<MedicalRecords> med = MedicalRecordsrepo.GetMedicalRecords(doctorId,patientId,LocalDate.now());
+        
+        if(med.isEmpty()){
+            throw new MedicalRecordNotFoundException("No Medical records exists for the paitent!");
+        }
+
         return med;
     }
 
@@ -120,7 +128,7 @@ public class PatientService {
     }
 
     public ResponseEntity<String> updateDoctor(long DoctorId,DoctorDto doctorDto){
-        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()-> new RuntimeException("Could not find ID "+DoctorId));
+        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()-> new DoctorNotFoundException("Could not find ID "+DoctorId));
 
         doc.setName(doctorDto.getName());
         doc.setProfession(doctorDto.getProfession());
@@ -131,7 +139,7 @@ public class PatientService {
     }
 
     public ResponseEntity<String> updatePatient(long PatientId,PatientDto patientDto){
-        Patient patient = Patientrepo.GetPatientDetails(patientDto.getDoctorId(),PatientId).orElseThrow(()->new RuntimeException("NO PATIENT"));
+        Patient patient = Patientrepo.GetPatientDetails(patientDto.getDoctorId(),PatientId).orElseThrow(()->new PatientNotFoundException("Patient not found!"));
 
         patient.setEmail(patientDto.getEmail());
         patient.setPhoneNumber(patientDto.getPhoneNumber());
@@ -143,7 +151,7 @@ public class PatientService {
     }
 
     public ResponseEntity<String> DeletePatient(long DoctorId,long PatientId){
-        Patient patient = Patientrepo.GetPatientDetails(DoctorId,PatientId).orElseThrow(()->new RuntimeException("NO PATIENT"));
+        Patient patient = Patientrepo.GetPatientDetails(DoctorId,PatientId).orElseThrow(()->new PatientNotFoundException("Patient not found!"));
         List<MedicalRecords> medrec = patient.getMedicalRecords();
 
         for(MedicalRecords i : medrec){
@@ -156,9 +164,9 @@ public class PatientService {
     }
 
     public ResponseEntity<String> DeleteDoctor(long DoctorId, long NewDoctorId){
-        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()-> new RuntimeException("Could not find ID "+DoctorId));
+        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()-> new DoctorNotFoundException("Could not find ID "+DoctorId));
         List<Patient> p = doc.getList();
-        Doctor D = Doctorrepo.findById(NewDoctorId).orElseThrow(()-> new RuntimeException("Could not find ID "+DoctorId));
+        Doctor D = Doctorrepo.findById(NewDoctorId).orElseThrow(()-> new DoctorNotFoundException("Could not find Replacement Doctor ID "+NewDoctorId));
         for(Patient i : p){
             i.setDoctor(D);
             Patientrepo.save(i);

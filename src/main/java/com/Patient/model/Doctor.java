@@ -16,8 +16,10 @@ public class Doctor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String profession;
+    private String emailId;
+    private String specialization;
     private String phoneNumber;
+    private String Password;
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -30,8 +32,8 @@ public class Doctor {
         return name;
     }
 
-    public String getProfession(){
-        return profession;
+    public String getSpecializaion(){
+        return specialization;
     }
 
     public String getPhoneNumber(){
@@ -41,6 +43,14 @@ public class Doctor {
 
     public List<Patient> getList(){
         return patients;
+    }
+
+    public String getPassword(){
+        return Password;
+    }
+
+    public String getEmailId(){
+        return emailId;
     }
 
     public void setId(Long id){
@@ -53,11 +63,19 @@ public class Doctor {
         this.patients = patients;
     }
 
-    public void setProfession(String profession){
-        this.profession = profession;
+    public void setSpecialization(String specialization){
+        this.specialization = specialization;
     }
 
     public void setPhoneNumber(String phoneNumber){
         this.phoneNumber = phoneNumber;
+    }
+
+    public void setPassword(String Password){
+        this.Password = Password;
+    }
+
+    public void setEmailId(String emailId){
+        this.emailId = emailId;
     }
 }

@@ -3,6 +3,7 @@ package com.Patient.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +44,11 @@ public class PatientService {
     @Autowired
     MedicalRecordsRepo MedicalRecordsrepo;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+    
+   
+
     public PatientDto newPatientAdd( PatientDto patient){
         Patient newPatient = new Patient();
         newPatient.setName(patient.getName());
@@ -55,13 +66,17 @@ public class PatientService {
         
     }
 
-    public Doctor DoctorInclusion(DoctorDto doctor){
-        Doctor d = new Doctor();
-        d.setName(doctor.getName());
-        d.setProfession(doctor.getProfession());
-        d.setPhoneNumber(doctor.getPhoneNumber());
+    public ResponseEntity<String> DoctorInclusion(Doctor doctor){
+        
+        if (doctor.getPassword() == null || doctor.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
+        }
+
+        doctor.setPassword(passwordEncoder.encode(doctor.getPassword()));
     
-        return Doctorrepo.save(d);
+        Doctorrepo.save(doctor);
+
+        return ResponseEntity.ok("The Doctor has been included to the database");
     }
 
     public MedicalRecordsDto newRecord(MedicalRecordsDto medrec){
@@ -85,8 +100,8 @@ public class PatientService {
     }
 
     @Transactional
-    public List<Patient> totalPatient(Long DoctorId){
-        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()->new DoctorNotFoundException("Doctor Not found!"));
+    public List<Patient> totalPatient(String user){
+        Doctor doc = Doctorrepo.findByEmailId(user).orElseThrow(()->new DoctorNotFoundException("Doctor Not found!"));
         return doc.getList();
     }
 
@@ -119,7 +134,7 @@ public class PatientService {
             DoctorDto d = new DoctorDto();
             d.setName(i.getName());
             d.setPhoneNumber(i.getPhoneNumber());
-            d.setProfession(i.getProfession());
+            d.setSpecialization(i.getSpecializaion());
 
             dto.add(d);
         }

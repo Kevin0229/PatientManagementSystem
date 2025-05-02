@@ -6,8 +6,8 @@ import jakarta.validation.constraints.Pattern;
 public class DoctorDto {
     @NotNull(message = "Name cannot be null")
     private String name;
-    @NotNull(message = "Profession cannot be null")
-    private String profession;
+    @NotNull(message = "specialization cannot be null")
+    private String specialization;
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone number must be between 10 to 15 digits and can start with '+'")
     private String phoneNumber;
     
@@ -19,16 +19,16 @@ public class DoctorDto {
         this.name = name;
     }
 
-    public String getProfession(){
-        return profession;
+    public String getSpecialization(){
+        return specialization;
     }
 
     public String getPhoneNumber(){
         return phoneNumber;
     }
 
-    public void setProfession(String profession){
-        this.profession = profession;
+    public void setSpecialization(String specialization){
+        this.specialization = specialization;
     }
 
     public void setPhoneNumber(String phoneNumber){

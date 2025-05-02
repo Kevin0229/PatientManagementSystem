@@ -1,4 +1,5 @@
 package com.Patient.controller;
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +41,9 @@ public class ControllerPatient {
         
     }
 
-    @PostMapping("/Newdoctor")
-    public  ResponseEntity<Doctor> addDoctorDetails(@RequestBody @Valid DoctorDto doctor){
-        return ResponseEntity.ok(patientServices.DoctorInclusion(doctor));
+    @PostMapping("/RegisterDoctor")
+    public  ResponseEntity<String> addDoctorDetails(@RequestBody  Doctor doctor){
+        return patientServices.DoctorInclusion(doctor);
     }
 
     @PostMapping("/NewMedicalRecord")
@@ -50,11 +51,17 @@ public class ControllerPatient {
         return ResponseEntity.ok(patientServices.newRecord(medrec));
     }
 
+    @GetMapping
+    public String getUserName(Principal prince){
+       String user = prince.getName();
+       return user;
+    }
 
-    @GetMapping("/{DoctorId}/Patient")
-    public ResponseEntity<List<Patient>> recieveAllPatient(@PathVariable long DoctorId){
-        List<Patient> patients = patientServices.totalPatient(DoctorId);
-        return ResponseEntity.ok(patients);
+    @GetMapping("/Patients")
+    public ResponseEntity<List<Patient>> recieveAllPatient(Principal prince){
+        String user = prince.getName();
+        List<Patient> patients = patientServices.totalPatient(user);
+        return ResponseEntity.ok(patients);// needs to be optimized in the service layer
     }
 
     @GetMapping("/{DoctorId}/Patient/{PatientId}")

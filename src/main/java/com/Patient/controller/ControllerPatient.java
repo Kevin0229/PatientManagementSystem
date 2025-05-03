@@ -36,8 +36,9 @@ public class ControllerPatient {
     
 
     @PostMapping("/NewPatient")
-    public ResponseEntity<PatientDto> addPatientToDoctor(@RequestBody @Valid PatientDto patients){
-        return ResponseEntity.ok(patientServices.newPatientAdd(patients));
+    public ResponseEntity<String> addPatientToDoctor(@RequestBody @Valid PatientDto patients,Principal prince){
+        String user = prince.getName();
+        return patientServices.newPatientAdd(user,patients);
         
     }
 
@@ -46,9 +47,10 @@ public class ControllerPatient {
         return patientServices.DoctorInclusion(doctor);
     }
 
-    @PostMapping("/NewMedicalRecord")
-    public  ResponseEntity<MedicalRecordsDto> addMedicalRecord(@RequestBody @Valid MedicalRecordsDto medrec){
-        return ResponseEntity.ok(patientServices.newRecord(medrec));
+    @PostMapping("/patient/{PatientId}/NewMedicalRecord")
+    public  ResponseEntity<String> addMedicalRecord(@RequestBody @Valid MedicalRecordsDto medrec,@PathVariable long PatientId,Principal prince){
+        String user = prince.getName();
+        return patientServices.newRecord(medrec,PatientId,user);
     }
 
     @GetMapping
@@ -58,49 +60,55 @@ public class ControllerPatient {
     }
 
     @GetMapping("/Patients")
-    public ResponseEntity<List<Patient>> recieveAllPatient(Principal prince){
+    public ResponseEntity<List<PatientDto>> recieveAllPatient(Principal prince){
         String user = prince.getName();
-        List<Patient> patients = patientServices.totalPatient(user);
-        return ResponseEntity.ok(patients);// needs to be optimized in the service layer
+        List<PatientDto> patients = patientServices.totalPatient(user);
+        return ResponseEntity.ok(patients);
     }
 
-    @GetMapping("/{DoctorId}/Patient/{PatientId}")
-    public ResponseEntity<PatientDto> recieveAPatient(@PathVariable long DoctorId,@PathVariable long PatientId){
-        PatientDto patient =patientServices.singlePatient(DoctorId,PatientId);
+    @GetMapping("/Patient/{PatientId}")
+    public ResponseEntity<PatientDto> recieveAPatient(@PathVariable long PatientId,Principal prince){
+        String user = prince.getName();
+        PatientDto patient =patientServices.singlePatient(user,PatientId);
         return ResponseEntity.ok(patient);
     }
 
     
-    @GetMapping("/{DoctorId}/Patient/{PatientId}/MedicalRecords")
-    public ResponseEntity<List<MedicalRecords>> recieveAllMedicalRecords(@PathVariable long DoctorId){
-        List<MedicalRecords> record = patientServices.totalMedrecord(DoctorId, DoctorId);
+    @GetMapping("/Patient/{PatientId}/MedicalRecords")
+    public ResponseEntity<List<MedicalRecords>> recieveAllMedicalRecords(@PathVariable long PatientId,Principal prince){
+        String user = prince.getName();
+        List<MedicalRecords> record = patientServices.totalMedrecord(user,PatientId);
         return ResponseEntity.ok(record);
     }
-   
+
     @GetMapping("/All")
     public ResponseEntity<List<DoctorDto>> allDoctor(){
         List<DoctorDto> doctors = patientServices.totalDoctor();
         return ResponseEntity.ok(doctors);
     }
 
-    @PutMapping("/{DoctorId}")
-    public ResponseEntity<String> DoctorUpdate(@PathVariable long DoctorId, @RequestBody DoctorDto doctorDto){
-        return patientServices.updateDoctor(DoctorId,doctorDto);
+    @PutMapping("Update")
+    public ResponseEntity<String> DoctorUpdate(Principal prince, @RequestBody DoctorDto doctorDto){
+        String user = prince.getName();
+        return patientServices.updateDoctor(user,doctorDto);
     }
      
     @PutMapping("/Patient/{PatientId}")
-    public ResponseEntity<String> PatientUpdate(@PathVariable long PatientId, @RequestBody PatientDto patientDto){
-        return patientServices.updatePatient(PatientId,patientDto);
+    public ResponseEntity<String> PatientUpdate(@PathVariable long PatientId, @RequestBody PatientDto patientDto,Principal prince){
+        String user = prince.getName();
+        return patientServices.updatePatient(user,PatientId,patientDto);
     }
 
-    @DeleteMapping("/{DoctorId}/Patient/{PatientId}")
-    public ResponseEntity<String> patientDelete(@PathVariable long DoctorId,@PathVariable long PatientId){
-        return patientServices.DeletePatient(DoctorId,PatientId);
+    @DeleteMapping("/Patient/{PatientId}")//handle exception/forbidden
+    public ResponseEntity<String> patientDelete(@PathVariable long PatientId,Principal prince){
+        String user = prince.getName();
+        return patientServices.DeletePatient(user,PatientId);
     }
    
-    @DeleteMapping("/{DoctorId}/NewDoctor/{NewDoctorId}")
-    public ResponseEntity<String> doctorDelete(@PathVariable long DoctorId,@PathVariable long NewDoctorId){
-        return patientServices.DeleteDoctor(DoctorId, NewDoctorId);
+    @DeleteMapping("/NewDoctor/{NewDoctorId}")
+    public ResponseEntity<String> doctorDelete(Principal prince,@PathVariable long NewDoctorId){
+        String user = prince.getName();
+        return patientServices.DeleteDoctor(user, NewDoctorId);
     }
 
     

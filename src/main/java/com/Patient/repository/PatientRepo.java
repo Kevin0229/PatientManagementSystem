@@ -15,6 +15,6 @@ import com.Patient.model.Patient;
 @Repository
 public interface PatientRepo extends JpaRepository<Patient, Long> {
 
-    @Query("SELECT p FROM Patient p WHERE p.id = :PatientId AND p.doctor.id = :DoctorId")
-    Optional<Patient> GetPatientDetails(@Param("DoctorId") long DoctorId,@Param("PatientId") long PatientId);
+    @Query("SELECT p FROM Patient p WHERE p.id = :PatientId AND p.doctor.emailId = :user")
+    Optional<Patient> GetPatientDetails(@Param("user") String user,@Param("PatientId") long PatientId);
 }

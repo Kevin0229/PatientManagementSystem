@@ -25,6 +25,7 @@ import com.Patient.DTOclasses.PatientDto;
 import com.Patient.Exception.DoctorNotFoundException;
 import com.Patient.Exception.MedicalRecordNotFoundException;
 import com.Patient.Exception.PatientNotFoundException;
+import com.Patient.Exception.UserInvalidException;
 import com.Patient.model.Doctor;
 import com.Patient.model.MedicalRecords;
 import com.Patient.model.Patient;
@@ -49,20 +50,17 @@ public class PatientService {
     
    
 
-    public PatientDto newPatientAdd( PatientDto patient){
+    public ResponseEntity<String> newPatientAdd(String user,PatientDto patient){
         Patient newPatient = new Patient();
         newPatient.setName(patient.getName());
         newPatient.setEmail(patient.getEmail());
         newPatient.setPhoneNumber(patient.getPhoneNumber());
 
-        Doctor doctor= Doctorrepo.findById(patient.getDoctorId()).orElseThrow(() -> new DoctorNotFoundException("Doctor not found!"));
+        Doctor doctor= Doctorrepo.findByEmailId(user).orElseThrow(() -> new DoctorNotFoundException("Doctor not found!"));
         newPatient.setDoctor(doctor);
-        Patient p = Patientrepo.save(newPatient);
-        PatientDto pdto = new PatientDto();
-        pdto.setName(p.getName());
-        pdto.setEmail(p.getEmail());
-        pdto.setPhoneNumber(p.getPhoneNumber());
-        return pdto;
+        Patientrepo.save(newPatient);
+        
+        return ResponseEntity.ok("The Patient has been added to the database successfully!");
         
     }
 
@@ -76,37 +74,51 @@ public class PatientService {
     
         Doctorrepo.save(doctor);
 
-        return ResponseEntity.ok("The Doctor has been included to the database");
+        return ResponseEntity.ok("The Doctor has been included to the database successfully");
     }
 
-    public MedicalRecordsDto newRecord(MedicalRecordsDto medrec){
+    public ResponseEntity<String> newRecord(MedicalRecordsDto medrec,long PatientId,String user){
+        Patient patient = Patientrepo.GetPatientDetails(user, PatientId).orElseThrow(()-> new UserInvalidException("invalid user or patientId"));
+
+
         MedicalRecords med = new MedicalRecords();
         med.setSymptoms(medrec.getSymptoms());
         med.setDiagnosis(medrec.getDiagnosis());
         med.setPrescription(medrec.getPrescription());
         med.setDate(LocalDate.now());
         
-        Patient p = Patientrepo.findById(medrec.getPatientId()).orElseThrow(()-> new PatientNotFoundException("Patient not found!"));
-        med.setPatient(p);
-        MedicalRecords medical = MedicalRecordsrepo.save(med);
+        //Patient p = Patientrepo.findById(medrec.getPatientId()).orElseThrow(()-> new PatientNotFoundException("Patient not found!"));
+        med.setPatient(patient);
+        MedicalRecordsrepo.save(med);
 
-        MedicalRecordsDto dtom = new MedicalRecordsDto();
-
-        dtom.setDate(medical.getDate());
-        dtom.setDiagnosis(medical.getDiagnosis());
-        dtom.setPrescription(medical.getPrescription());
-        dtom.setSymptoms(medical.getSymptoms());
-        return dtom;
+        return ResponseEntity.ok("The Medical Record for Patient "+PatientId+" has been added to the database successfully");
     }
 
     @Transactional
-    public List<Patient> totalPatient(String user){
+    public List<PatientDto> totalPatient(String user){
         Doctor doc = Doctorrepo.findByEmailId(user).orElseThrow(()->new DoctorNotFoundException("Doctor Not found!"));
-        return doc.getList();
+        List<Patient> l = doc.getList();
+        List<PatientDto> pdto = new ArrayList<>();
+        for(Patient i : l){
+            PatientDto p = new PatientDto();
+
+            p.setName(i.getName());
+            p.setEmail(i.getEmail());
+            p.setPhoneNumber(i.getPhoneNumber());
+            
+            pdto.add(p);
+        }
+
+        return pdto;
     }
 
-    public PatientDto singlePatient(long DoctorId,long PatientId){
-        Patient p =  Patientrepo.GetPatientDetails(DoctorId,PatientId).orElseThrow(()->new PatientNotFoundException("NO PATIENT"));
+    public PatientDto singlePatient(String user,long PatientId){
+        if(!Patientrepo.existsById(PatientId)){
+            throw new PatientNotFoundException("Patient not found in the Database");
+        }
+        
+        Patient p =  Patientrepo.GetPatientDetails(user,PatientId).orElseThrow(()->new UserInvalidException("You are not allowed to access the patient!"));
+
         PatientDto pdto = new PatientDto();
         pdto.setName(p.getName());
         pdto.setEmail(p.getEmail());
@@ -115,9 +127,10 @@ public class PatientService {
         return pdto;
     }
 
-    public List<MedicalRecords> totalMedrecord(long doctorId, long patientId){
-        List<MedicalRecords> med = MedicalRecordsrepo.GetMedicalRecords(doctorId,patientId,LocalDate.now());
-        
+    public List<MedicalRecords> totalMedrecord(String user, long patientId){
+        Patient patient = Patientrepo.GetPatientDetails(user, patientId).orElseThrow(()-> new UserInvalidException("You are not allowed to access the patient!"));
+
+        List<MedicalRecords> med = MedicalRecordsrepo.GetMedicalRecords(user,patientId,LocalDate.now());
         if(med.isEmpty()){
             throw new MedicalRecordNotFoundException("No Medical records exists for the paitent!");
         }
@@ -142,19 +155,22 @@ public class PatientService {
         return dto;
     }
 
-    public ResponseEntity<String> updateDoctor(long DoctorId,DoctorDto doctorDto){
-        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()-> new DoctorNotFoundException("Could not find ID "+DoctorId));
+    public ResponseEntity<String> updateDoctor(String user,DoctorDto doctorDto){
+        Doctor doc = Doctorrepo.findByEmailId(user).orElseThrow(()-> new DoctorNotFoundException("Could not find ID "+user));
 
         doc.setName(doctorDto.getName());
-        doc.setProfession(doctorDto.getProfession());
+        doc.setSpecialization(doctorDto.getSpecialization());
         doc.setPhoneNumber(doctorDto.getPhoneNumber());
 
         Doctorrepo.save(doc);
         return ResponseEntity.ok("The Doctor details have been Successfully updated!");
     }
 
-    public ResponseEntity<String> updatePatient(long PatientId,PatientDto patientDto){
-        Patient patient = Patientrepo.GetPatientDetails(patientDto.getDoctorId(),PatientId).orElseThrow(()->new PatientNotFoundException("Patient not found!"));
+    public ResponseEntity<String> updatePatient(String user,long PatientId,PatientDto patientDto){
+        if(!Patientrepo.existsById(PatientId)){
+            throw new PatientNotFoundException("Patient not found!");
+        }
+        Patient patient = Patientrepo.GetPatientDetails(user,PatientId).orElseThrow(()->new UserInvalidException("You are not allowed to access the patient!"));
 
         patient.setEmail(patientDto.getEmail());
         patient.setPhoneNumber(patientDto.getPhoneNumber());
@@ -165,8 +181,12 @@ public class PatientService {
 
     }
 
-    public ResponseEntity<String> DeletePatient(long DoctorId,long PatientId){
-        Patient patient = Patientrepo.GetPatientDetails(DoctorId,PatientId).orElseThrow(()->new PatientNotFoundException("Patient not found!"));
+    public ResponseEntity<String> DeletePatient(String user,long PatientId){
+        if(!Patientrepo.existsById(PatientId)){
+            throw new PatientNotFoundException("Patient not found!");
+        }
+
+        Patient patient = Patientrepo.GetPatientDetails(user,PatientId).orElseThrow(()->new UserInvalidException("You are not allowed to access the patient!"));
         List<MedicalRecords> medrec = patient.getMedicalRecords();
 
         for(MedicalRecords i : medrec){
@@ -178,8 +198,8 @@ public class PatientService {
         return ResponseEntity.ok("The Patient of ID "+PatientId+" Has been deleted along with all their records!");
     }
 
-    public ResponseEntity<String> DeleteDoctor(long DoctorId, long NewDoctorId){
-        Doctor doc = Doctorrepo.findById(DoctorId).orElseThrow(()-> new DoctorNotFoundException("Could not find ID "+DoctorId));
+    public ResponseEntity<String> DeleteDoctor(String user, long NewDoctorId){
+        Doctor doc = Doctorrepo.findByEmailId(user).orElseThrow(()-> new DoctorNotFoundException("Could not find ID "+user));
         List<Patient> p = doc.getList();
         Doctor D = Doctorrepo.findById(NewDoctorId).orElseThrow(()-> new DoctorNotFoundException("Could not find Replacement Doctor ID "+NewDoctorId));
         for(Patient i : p){
@@ -189,6 +209,6 @@ public class PatientService {
 
         Doctorrepo.delete(doc);
 
-        return ResponseEntity.ok("The Doctor of ID "+DoctorId+" Has been deleted and Doctor with ID "+NewDoctorId+" has been replaced successfully!");
+        return ResponseEntity.ok("The Doctor of ID "+user+" Has been deleted Successfully");
     }
 }

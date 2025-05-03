@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.Patient.Exception.DoctorNotFoundException;
 import com.Patient.Exception.MedicalRecordNotFoundException;
 import com.Patient.Exception.PatientNotFoundException;
+import com.Patient.Exception.UserInvalidException;
 
 @ControllerAdvice
 public class GlobalException {
@@ -31,6 +32,12 @@ private ResponseEntity<?> DoctorNotFoundHandler(DoctorNotFoundException except){
 @ExceptionHandler( MedicalRecordNotFoundException.class)
 private ResponseEntity<?> MedicalRecordsNotFoundHandler(MedicalRecordNotFoundException except){
     return responsebody(HttpStatus.NOT_FOUND,except.getMessage());
+
+}
+
+@ExceptionHandler(UserInvalidException.class)
+private ResponseEntity<?> InvalidUserHandler(UserInvalidException except){
+    return responsebody(HttpStatus.FORBIDDEN,except.getMessage());
 
 }
 

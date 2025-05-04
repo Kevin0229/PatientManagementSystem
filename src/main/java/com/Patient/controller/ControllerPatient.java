@@ -17,23 +17,16 @@ import com.Patient.DTOclasses.MedicalRecordsDto;
 import com.Patient.DTOclasses.PatientDto;
 import com.Patient.model.Doctor;
 import com.Patient.model.MedicalRecords;
-import com.Patient.model.Patient;
 import com.Patient.service.PatientService;
 import jakarta.validation.Valid;
 
 
 @RestController
-@RequestMapping("/Doctor")
+@RequestMapping("/Home")
 public class ControllerPatient {
     @Autowired
     PatientService patientServices;
 
-    // @GetMapping("/form")
-    // public String formProvider(Model model){
-    //     model.addAttribute("DTOpatient",new PatientDto());
-    //     return "index";
-    // }
-    
 
     @PostMapping("/NewPatient")
     public ResponseEntity<String> addPatientToDoctor(@RequestBody @Valid PatientDto patients,Principal prince){

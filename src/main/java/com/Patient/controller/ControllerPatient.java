@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@RequestMapping("/Home")
+@RequestMapping("/Doctor")
 public class ControllerPatient {
     @Autowired
     PatientService patientServices;

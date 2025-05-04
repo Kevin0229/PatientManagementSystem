@@ -41,7 +41,7 @@ public class PatientService {
     
    
 
-    public ResponseEntity<String> newPatientAdd(String user,PatientDto patient){
+    public ResponseEntity<String> newPatientAdd(String user,PatientDto patient){//done
         Patient newPatient = new Patient();
         newPatient.setName(patient.getName());
         newPatient.setEmail(patient.getEmail());
@@ -68,7 +68,7 @@ public class PatientService {
         return ResponseEntity.ok("The Doctor has been included to the database successfully");
     }
 
-    public ResponseEntity<String> newRecord( MedicalRecordsDto medrec,long PatientId,String user){
+    public ResponseEntity<String> newRecord( MedicalRecordsDto medrec,long PatientId,String user){//done
         Patient patient = Patientrepo.GetPatientDetails(user, PatientId).orElseThrow(()-> new UserInvalidException("invalid user or patientId"));
 
 

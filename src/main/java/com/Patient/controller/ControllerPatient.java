@@ -87,7 +87,7 @@ public class ControllerPatient {
         return ResponseEntity.ok(doctors);
     }
 
-    @PutMapping("Update")
+    @PutMapping("/Update")
     public ResponseEntity<String> DoctorUpdate(Principal prince, @RequestBody DoctorDto doctorDto){
         String user = prince.getName();
         return patientServices.updateDoctor(user,doctorDto);
@@ -99,7 +99,7 @@ public class ControllerPatient {
         return patientServices.updatePatient(user,PatientId,patientDto);
     }
 
-    @DeleteMapping("/Patient/{PatientId}")//handle exception/forbidden
+    @DeleteMapping("/Patient/{PatientId}")
     public ResponseEntity<String> patientDelete(@PathVariable long PatientId,Principal prince){
         String user = prince.getName();
         return patientServices.DeletePatient(user,PatientId);

@@ -55,7 +55,7 @@ public class PatientService {
         
     }
 
-    public ResponseEntity<String> DoctorInclusion(Doctor doctor){
+    public ResponseEntity<String> DoctorInclusion(Doctor doctor){//done
         
         if (doctor.getPassword() == null || doctor.getPassword().isBlank()) {
             throw new IllegalArgumentException("Password cannot be null or empty");
@@ -86,7 +86,7 @@ public class PatientService {
     }
 
     @Transactional
-    public List<PatientDto> totalPatient(String user){
+    public List<PatientDto> totalPatient(String user){//done
         Doctor doc = Doctorrepo.findByEmailId(user).orElseThrow(()->new DoctorNotFoundException("Doctor Not found!"));
         List<Patient> l = doc.getList();
         List<PatientDto> pdto = new ArrayList<>();
@@ -103,7 +103,7 @@ public class PatientService {
         return pdto;
     }
 
-    public PatientDto singlePatient(String user,long PatientId){
+    public PatientDto singlePatient(String user,long PatientId){//done
         if(!Patientrepo.existsById(PatientId)){
             throw new PatientNotFoundException("Patient not found in the Database");
         }
@@ -118,7 +118,7 @@ public class PatientService {
         return pdto;
     }
 
-    public List<MedicalRecords> totalMedrecord(String user, long patientId){
+    public List<MedicalRecords> totalMedrecord(String user, long patientId){//done
         Patient patient = Patientrepo.GetPatientDetails(user, patientId).orElseThrow(()-> new UserInvalidException("You are not allowed to access the patient!"));
 
         List<MedicalRecords> med = MedicalRecordsrepo.GetMedicalRecords(user,patientId,LocalDate.now());

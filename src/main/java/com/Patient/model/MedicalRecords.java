@@ -27,6 +27,9 @@ public class MedicalRecords {
     @JsonBackReference
     private Patient patient;
 
+    public void setId(long id){
+        this.id = id;
+    }
 
     public long getId(){
         return id;

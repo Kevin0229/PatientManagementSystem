@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.Patient.service.DoctorService;
-import com.Patient.service.PatientService;
 
 @Configuration
 @EnableWebSecurity

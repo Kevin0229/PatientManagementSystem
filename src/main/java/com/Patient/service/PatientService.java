@@ -41,7 +41,7 @@ public class PatientService {
     
    
 
-    public ResponseEntity<String> newPatientAdd(String user,PatientDto patient){//done
+    public ResponseEntity<String> newPatientAdd(String user,PatientDto patient){
         Patient newPatient = new Patient();
         newPatient.setName(patient.getName());
         newPatient.setEmail(patient.getEmail());
@@ -55,7 +55,7 @@ public class PatientService {
         
     }
 
-    public ResponseEntity<String> DoctorInclusion(Doctor doctor){//done
+    public ResponseEntity<String> DoctorInclusion(Doctor doctor){
         
         if (doctor.getPassword() == null || doctor.getPassword().isBlank()) {
             throw new IllegalArgumentException("Password cannot be null or empty");
@@ -68,7 +68,7 @@ public class PatientService {
         return ResponseEntity.ok("The Doctor has been included to the database successfully");
     }
 
-    public ResponseEntity<String> newRecord( MedicalRecordsDto medrec,long PatientId,String user){//done
+    public ResponseEntity<String> newRecord( MedicalRecordsDto medrec,long PatientId,String user){
         Patient patient = Patientrepo.GetPatientDetails(user, PatientId).orElseThrow(()-> new UserInvalidException("invalid user or patientId"));
 
 
@@ -86,7 +86,7 @@ public class PatientService {
     }
 
     @Transactional
-    public List<PatientDto> totalPatient(String user){//done
+    public List<PatientDto> totalPatient(String user){
         Doctor doc = Doctorrepo.findByEmailId(user).orElseThrow(()->new DoctorNotFoundException("Doctor Not found!"));
         List<Patient> l = doc.getList();
         List<PatientDto> pdto = new ArrayList<>();
@@ -103,7 +103,7 @@ public class PatientService {
         return pdto;
     }
 
-    public PatientDto singlePatient(String user,long PatientId){//done
+    public PatientDto singlePatient(String user,long PatientId){
         if(!Patientrepo.existsById(PatientId)){
             throw new PatientNotFoundException("Patient not found in the Database");
         }
@@ -118,8 +118,8 @@ public class PatientService {
         return pdto;
     }
 
-    public List<MedicalRecords> totalMedrecord(String user, long patientId){//done
-        Patient patient = Patientrepo.GetPatientDetails(user, patientId).orElseThrow(()-> new UserInvalidException("You are not allowed to access the patient!"));
+    public List<MedicalRecords> totalMedrecord(String user, long patientId){
+        Patientrepo.GetPatientDetails(user, patientId).orElseThrow(()-> new UserInvalidException("You are not allowed to access the patient!"));
 
         List<MedicalRecords> med = MedicalRecordsrepo.GetMedicalRecords(user,patientId,LocalDate.now());
         if(med.isEmpty()){
@@ -129,7 +129,7 @@ public class PatientService {
         return med;
     }
 
-    public List<DoctorDto> totalDoctor(){//done
+    public List<DoctorDto> totalDoctor(){
         List<Doctor> docs =  Doctorrepo.findAll();
 
         List<DoctorDto> dto = new ArrayList<>();
@@ -186,7 +186,7 @@ public class PatientService {
 
         Patientrepo.deleteById(PatientId);
 
-        return ResponseEntity.ok("The Patient of ID "+PatientId+" Has been deleted along with all their records!");
+        return ResponseEntity.ok("The Patient of ID "+PatientId+" has been deleted along with all their records!");
     }
 
     public ResponseEntity<String> DeleteDoctor(String user, long NewDoctorId){
@@ -200,6 +200,6 @@ public class PatientService {
 
         Doctorrepo.delete(doc);
 
-        return ResponseEntity.ok("The Doctor of ID "+user+" Has been deleted Successfully");
+        return ResponseEntity.ok("The Doctor of ID "+user+" has been deleted Successfully");
     }
 }

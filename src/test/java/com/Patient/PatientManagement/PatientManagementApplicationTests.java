@@ -1,7 +1,6 @@
 package com.Patient.PatientManagement;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,7 +10,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import javax.print.Doc;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.Patient.DTOclasses.DoctorDto;
 import com.Patient.DTOclasses.MedicalRecordsDto;
 import com.Patient.DTOclasses.PatientDto;
-import com.Patient.controller.ControllerPatient;
 import com.Patient.model.Doctor;
 import com.Patient.model.MedicalRecords;
 import com.Patient.model.Patient;
@@ -33,7 +30,6 @@ import com.Patient.repository.DoctorRepo;
 import com.Patient.repository.MedicalRecordsRepo;
 import com.Patient.repository.PatientRepo;
 import com.Patient.service.PatientService;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 @ExtendWith(MockitoExtension.class)
 class PatientManagementApplicationTests {
@@ -262,8 +258,111 @@ class PatientManagementApplicationTests {
 		verify(Doctorrepo,times(1)).findAll();
 
 	}
-	
-	 
+	@Test
+	void testupdateDoctor_returnStatus_whenDoctorExists(){
+		String username = "shawn@gmail.com";
+		Doctor d = new Doctor();
+		d.setEmailId(username);
+		d.setName("Dr. Shawn");
+		d.setPhoneNumber("9191919191");
+		d.setSpecialization("Surgery");
 
+		DoctorDto updateDoctorDto = new DoctorDto();
+		updateDoctorDto.setName("Dr. Shawn Murphy");
+		updateDoctorDto.setPhoneNumber("9191919192");
+		updateDoctorDto.setSpecialization("Cardiology");
+
+		when(Doctorrepo.findByEmailId(username)).thenReturn(Optional.of(d));
+		ResponseEntity<String> res = patientServices.updateDoctor(username,updateDoctorDto);
+		assertEquals(HttpStatus.OK, res.getStatusCode());
+		assertEquals("The Doctor details have been Successfully updated!", res.getBody());
+		assertEquals("Dr. Shawn Murphy", d.getName());
+		assertEquals("9191919192", d.getPhoneNumber());
+		verify(Doctorrepo,times(1)).findByEmailId(username);
+
+	}
+
+	@Test
+	void testupdatePatient_returnStatus_whenuserAndPatientValid(){
+		String username = "shawn@gmail.com";
+		long patientId = 1;
+		Patient p = new Patient();
+		p.setEmail("rolex1@gmail.com");
+		p.setPhoneNumber("9191919191");
+
+		PatientDto updatePatientDto = new PatientDto();
+		updatePatientDto.setEmail("rolex2@gmail.com");
+		updatePatientDto.setPhoneNumber("9191919192");
+
+		when(Patientrepo.existsById(patientId)).thenReturn(true);
+		when(Patientrepo.GetPatientDetails(username,patientId)).thenReturn(Optional.of(p));
+		ResponseEntity<String> res = patientServices.updatePatient(username,patientId,updatePatientDto);
+		assertEquals(HttpStatus.OK, res.getStatusCode());
+		assertEquals("The Patient of ID " +patientId+ " has been successfully updated!", res.getBody());
+		assertEquals("rolex2@gmail.com", p.getEmail());
+		assertEquals("9191919192", p.getPhoneNumber());
+		verify(Patientrepo,times(1)).existsById(patientId);
+	}
+
+	@Test
+	void testDeletePatient_returnStatus_whenUserAndPatientValid(){
+		String username = "shawn@gmail.com";
+		long patientId = 1;
+		Patient p = new Patient();
+		p.setId(patientId);
+		p.setEmail("rolex@gmail.com");
+		p.setPhoneNumber("9191919191");
+
+		List<MedicalRecords> medrec = new ArrayList<>();
+		MedicalRecords m1 = new MedicalRecords();
+		m1.setId(1L);
+		m1.setSymptoms("symptom1");
+		m1.setDiagnosis("diagnosis1");
+		m1.setPrescription("prescription1");
+		MedicalRecords m2 = new MedicalRecords();
+		m2.setId(2L);
+		m2.setSymptoms("symptom2");
+		m2.setDiagnosis("diagnosis2");
+		m2.setPrescription("prescription2");
+
+		medrec.add(m1);
+		medrec.add(m2);
+		p.setMedicalRecords(medrec);
+
+		when(Patientrepo.existsById(patientId)).thenReturn(true);
+		when(Patientrepo.GetPatientDetails(username,patientId)).thenReturn(Optional.of(p));
+		ResponseEntity<String> res = patientServices.DeletePatient(username,patientId);
+		assertEquals(HttpStatus.OK, res.getStatusCode());
+		assertEquals("The Patient of ID " +patientId+ " has been deleted along with all their records!", res.getBody());
+		verify(Patientrepo,times(1)).existsById(patientId);
+		verify(Patientrepo,times(1)).GetPatientDetails(username,patientId);
+		verify(MedicalRecordsrepo,times(1)).deleteById(1L);
+		verify(MedicalRecordsrepo,times(1)).deleteById(2L);
+		verify(Patientrepo,times(1)).deleteById(patientId);
+	}
+
+	@Test
+	void testDeleteDoctor_returnStatus_whenDoctorValid(){
+		String username = "shawn@gmail.com";
+		long doctorId = 2;
+		Doctor d = new Doctor();
+		d.setEmailId(username);
+		List<Patient> p = new ArrayList<>();
+		Patient p1 = new Patient();
+		Patient p2 = new Patient();
+		p.add(p1);
+		p.add(p2);
+		d.setList(p);
+		Doctor d1 = new Doctor();
+		d1.setId(doctorId);
+		d1.setEmailId("aaron@gmail.com");
+		when(Doctorrepo.findByEmailId(username)).thenReturn(Optional.of(d));
+		when(Doctorrepo.findById(doctorId)).thenReturn(Optional.of(d1));
+		ResponseEntity<String> res = patientServices.DeleteDoctor(username,doctorId);
+		assertEquals(HttpStatus.OK, res.getStatusCode());
+		assertEquals("The Doctor of ID "+username+" has been deleted Successfully", res.getBody());
+
+
+	}
 
 }

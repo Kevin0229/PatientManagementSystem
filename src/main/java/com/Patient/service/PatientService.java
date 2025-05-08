@@ -129,7 +129,7 @@ public class PatientService {
         return med;
     }
 
-    public List<DoctorDto> totalDoctor(){
+    public List<DoctorDto> totalDoctor(){//done
         List<Doctor> docs =  Doctorrepo.findAll();
 
         List<DoctorDto> dto = new ArrayList<>();

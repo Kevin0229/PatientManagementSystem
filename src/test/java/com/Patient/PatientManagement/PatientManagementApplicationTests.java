@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import javax.print.Doc;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,8 +22,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.Patient.DTOclasses.DoctorDto;
 import com.Patient.DTOclasses.MedicalRecordsDto;
 import com.Patient.DTOclasses.PatientDto;
+import com.Patient.controller.ControllerPatient;
 import com.Patient.model.Doctor;
 import com.Patient.model.MedicalRecords;
 import com.Patient.model.Patient;
@@ -29,6 +33,7 @@ import com.Patient.repository.DoctorRepo;
 import com.Patient.repository.MedicalRecordsRepo;
 import com.Patient.repository.PatientRepo;
 import com.Patient.service.PatientService;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 @ExtendWith(MockitoExtension.class)
 class PatientManagementApplicationTests {
@@ -233,6 +238,31 @@ class PatientManagementApplicationTests {
 		verify(Patientrepo,times(1)).GetPatientDetails(username,patientId);
 		verify(MedicalRecordsrepo,times(1)).GetMedicalRecords(username,patientId,LocalDate.now());
 	}
+	@Test
+	void testAllDoctor_returnsDoctorDtoList(){
+		List<Doctor> doctors = new ArrayList<>();
+		Doctor d1 = new Doctor();
+        d1.setName("Dr. Shawn");
+        d1.setPhoneNumber("1234567890");
+        d1.setSpecialization("Surgery");
+		Doctor d2= new Doctor();
+		d2.setName("Dr. Aaron");
+		d2.setPhoneNumber("0987654321");
+		d2.setSpecialization("Neurology");
+		doctors.add(d1);
+		doctors.add(d2);
+
+		when(Doctorrepo.findAll()).thenReturn(doctors);
+		List<DoctorDto> res = patientServices.totalDoctor();
+		assertEquals(2, res.size());
+		assertEquals("Dr. Shawn", res.get(0).getName());
+		assertEquals("0987654321", res.get(1).getPhoneNumber());
+		assertEquals("Surgery", res.get(0).getSpecialization());
+		assertEquals("Neurology", res.get(1).getSpecialization());
+		verify(Doctorrepo,times(1)).findAll();
+
+	}
+	
 	 
 
 

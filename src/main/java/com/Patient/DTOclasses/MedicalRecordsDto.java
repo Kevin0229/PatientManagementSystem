@@ -11,9 +11,9 @@ public class MedicalRecordsDto {
     private String diagnosis;
     @NotNull(message = "Prescription cannot be null")
     private String prescription;
-    @NotNull(message = "Date cannot be null")
+   
     private LocalDate date;
-    @NotNull(message = "Patient ID cannot be null")
+
     private long patientId;
 
     public String getSymptoms() {

@@ -21,7 +21,7 @@ public class Doctor {
     private String phoneNumber;
     private String Password;
 
-    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "doctor")
     @JsonManagedReference
     private List<Patient> patients;
 

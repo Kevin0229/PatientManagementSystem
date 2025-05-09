@@ -29,7 +29,7 @@ public class ControllerPatient {
 
 
     @PostMapping("/NewPatient")
-    public ResponseEntity<String> addPatientToDoctor(@RequestBody @Valid PatientDto patients,Principal prince){
+    public ResponseEntity<String> addPatientToDoctor(@Valid @RequestBody PatientDto patients,Principal prince){
         String user = prince.getName();
         return patientServices.newPatientAdd(user,patients);
         
@@ -41,7 +41,7 @@ public class ControllerPatient {
     }
 
     @PostMapping("/patient/{PatientId}/NewMedicalRecord")
-    public  ResponseEntity<String> addMedicalRecord(@RequestBody @Valid MedicalRecordsDto medrec,@PathVariable long PatientId,Principal prince){
+    public  ResponseEntity<String> addMedicalRecord(@Valid @RequestBody MedicalRecordsDto medrec,@PathVariable long PatientId,Principal prince){
         String user = prince.getName();
         return patientServices.newRecord(medrec,PatientId,user);
     }
@@ -81,13 +81,13 @@ public class ControllerPatient {
     }
 
     @PutMapping("/Update")
-    public ResponseEntity<String> DoctorUpdate(Principal prince, @RequestBody DoctorDto doctorDto){
+    public ResponseEntity<String> DoctorUpdate(Principal prince,@Valid @RequestBody DoctorDto doctorDto){
         String user = prince.getName();
         return patientServices.updateDoctor(user,doctorDto);
     }
      
     @PutMapping("/Patient/{PatientId}")
-    public ResponseEntity<String> PatientUpdate(@PathVariable long PatientId, @RequestBody PatientDto patientDto,Principal prince){
+    public ResponseEntity<String> PatientUpdate(@PathVariable long PatientId,@Valid @RequestBody PatientDto patientDto,Principal prince){
         String user = prince.getName();
         return patientServices.updatePatient(user,PatientId,patientDto);
     }

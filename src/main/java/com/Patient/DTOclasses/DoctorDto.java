@@ -9,6 +9,7 @@ public class DoctorDto {
     @NotNull(message = "specialization cannot be null")
     private String specialization;
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone number must be between 10 to 15 digits and can start with '+'")
+    @NotNull(message = "Phone number cannot be null")
     private String phoneNumber;
     
     public String getName() {

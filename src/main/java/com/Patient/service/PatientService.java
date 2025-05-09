@@ -3,6 +3,7 @@ package com.Patient.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +57,14 @@ public class PatientService {
     }
 
     public ResponseEntity<String> DoctorInclusion(Doctor doctor){
-        
+
+        Optional<Doctor> d = Doctorrepo.findByEmailId(doctor.getEmailId());
+
+        if(!d.isEmpty()){
+            throw new IllegalArgumentException("email id already exists!");
+        }
+
+
         if (doctor.getPassword() == null || doctor.getPassword().isBlank()) {
             throw new IllegalArgumentException("Password cannot be null or empty");
         }
@@ -119,6 +127,9 @@ public class PatientService {
     }
 
     public List<MedicalRecords> totalMedrecord(String user, long patientId){
+        if(!Patientrepo.existsById(patientId)){
+            throw new PatientNotFoundException("Patient is not available in the database!");
+        }
         Patientrepo.GetPatientDetails(user, patientId).orElseThrow(()-> new UserInvalidException("You are not allowed to access the patient!"));
 
         List<MedicalRecords> med = MedicalRecordsrepo.GetMedicalRecords(user,patientId,LocalDate.now());

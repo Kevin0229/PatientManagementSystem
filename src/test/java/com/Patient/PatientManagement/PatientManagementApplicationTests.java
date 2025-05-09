@@ -186,7 +186,7 @@ class PatientManagementApplicationTests {
 	}
 
 	@Test
-	void testTotalMedicalRecords_returnsMedicalRecordsList_(){
+	void testTotalMedicalRecords_returnsMedicalRecordsList(){
 		String username = "Someone@gmail.com";
 		long patientId = 1;
 
@@ -207,7 +207,7 @@ class PatientManagementApplicationTests {
 		med1.setSymptoms("symptom1");
 		med1.setDiagnosis("diagnosis1");
 		med1.setPrescription("prescription1");
-		med1.setDate(LocalDate.now());;
+		med1.setDate(LocalDate.now());
 		med1.setPatient(patient);
 
 		MedicalRecords med2 = new MedicalRecords();
@@ -220,7 +220,7 @@ class PatientManagementApplicationTests {
 
 		medrec.add(med1);
 		medrec.add(med2);
-
+		when(Patientrepo.existsById(patientId)).thenReturn(true);
 		when(Patientrepo.GetPatientDetails(username,patientId)).thenReturn(Optional.of(patient));
 		when(MedicalRecordsrepo.GetMedicalRecords(username,patientId,LocalDate.now())).thenReturn(medrec);
 		

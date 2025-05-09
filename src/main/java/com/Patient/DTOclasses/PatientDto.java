@@ -13,7 +13,7 @@ public class PatientDto {
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone number must be between 10 to 15 digits and can start with '+'")
     @NotNull(message = "Phone number cannot be null")
     private String phoneNumber;
-    @NotNull(message = "Doctor ID cannot be null")
+    
     private Long doctorId; 
 
 

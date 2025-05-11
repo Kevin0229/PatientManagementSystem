@@ -42,7 +42,7 @@ A robust backend RESTful API application developed using **Spring Boot** to help
 
 - **JUnit & Mockito**  
   - Unit tests for service layer testing.  
-  - Mocking to isolate and test components independently.
+  - Mocking to isolate and test components independently and provide test cases.
 
 ---
 

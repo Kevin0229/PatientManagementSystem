@@ -1,6 +1,7 @@
 package com.Patient.PatientManagement;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,7 +10,6 @@ import java.util.List;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
-
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.Patient.DTOclasses.DoctorDto;
 import com.Patient.DTOclasses.MedicalRecordsDto;
 import com.Patient.DTOclasses.PatientDto;
+import com.Patient.Exception.DoctorNotFoundException;
 import com.Patient.model.Doctor;
 import com.Patient.model.MedicalRecords;
 import com.Patient.model.Patient;
@@ -67,6 +68,22 @@ class PatientManagementApplicationTests {
 		assertEquals(HttpStatus.OK, res.getStatusCode());
 		assertEquals("The Patient has been added to the database successfully!", res.getBody());
 
+		verify(Doctorrepo,times(1)).findByEmailId(username);
+	}
+
+	@Test
+	void testNewPatientAdd_returnStatus_whenUserEmailInvalid() {
+		String username = "Someone@gmail.com";
+		PatientDto pdto = new PatientDto();
+		pdto.setName("relox");
+		pdto.setEmail("rolex@gmail.com");
+		pdto.setPhoneNumber("9177736351");
+
+		when(Doctorrepo.findByEmailId(username)).thenReturn(Optional.empty());
+		DoctorNotFoundException thrown  = assertThrows(DoctorNotFoundException.class,() -> {
+			patientServices.newPatientAdd(username,pdto);
+		});
+		assertEquals("Doctor not found!", thrown.getMessage());
 		verify(Doctorrepo,times(1)).findByEmailId(username);
 	}
 
